@@ -108,16 +108,6 @@ class word_make:
         names, date, name_prefix,suffix,dat32 = self._get_names()
         gene = gene_info[2]
         gene_site = gene_info[3]
-        #if '-' in gene_site:
-        #    site_chr = gene_site.split('-')[0]
-        #    site_site = gene_site.split('-')[1]
-        #elif '_' in gene_site:
-        #    site_chr = gene_site.split('_')[0]
-        #    site_site = gene_site.split('_')[1]
-        #else:
-        #    print('ERROR: gene site erro in line:\n{}'.format(gene_info))
-        #    exit(1)
-        #seq = abi_new.refseq_extract(site_chr,site_site,'hg38')
         pcr = gene_info[5]
         table2_row_num = len(names) + 1
         table2 = D.add_table(rows=table2_row_num, cols=4, style='Table Grid')
@@ -260,11 +250,6 @@ if __name__ == '__main__':
             abi_new.png_reshape_batch(png_dir)
         else:
             png_dir = os.path.join(abi_dir,'pngs')
-        main(config, png_dir, out)
 
-        # main(config, pic_dir, out)
-    #except Exception as e:
-    #    print(e)
-    #    sys.stdout.write('\n')
     sys.stdout.write('\n')
     input("运行结束，回车退出。\n")

@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-Rscript = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_saifu_report\abi_R.R' #[1]outputdir [2]abi file [3]png name [4]refseq
+Rscript = r'abi_R.R' #[1]outputdir [2]abi file [3]png name [4]refseq
 
 
 def img_open(img_file):
@@ -42,11 +42,11 @@ def refseq_extract(site_chr,site_site,genome_type='hg19'):
     flank = 10
     site_chr = 'chrX' if 'x' in site_chr else site_chr
     if genome_type == 'hg19':
-        faidx = 'D:\\zcs-genex\\SCRIPTS\\genome\\hg19_1.fa.fai'
-        fa = 'D:\\zcs-genex\\SCRIPTS\\genome\\hg19_1.fa'
+        faidx = r'hg19_1.fa.fai'
+        fa = r'hg19_1.fa'
     else:
-        fa = 'D:\\zcs-genex\\SCRIPTS\\genome\\GRCh38_latest_genomic.fna.filter.fa'
-        faidx = 'D:\\zcs-genex\\SCRIPTS\\genome\\GRCh38_latest_genomic.fna.filter.fa.fai'
+        fa = r'GRCh38_latest_genomic.fna.filter.fa'
+        faidx = r'GRCh38_latest_genomic.fna.filter.fa.fai'
     faidx_dict = {}
     with open(faidx,'r') as o:
         for i in o.readlines():
@@ -61,68 +61,6 @@ def refseq_extract(site_chr,site_site,genome_type='hg19'):
     fbuffer.seek(location, 0)
     sequence = fbuffer.read(length).replace('\n','')
     return sequence
-
-
-def debug():
-    #png = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_report_improve\20190108\bug_190225_hg38\pngs\622_8.CT-T.png'
-    #png = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_saifu_report\debug\A2865_M.GG-G.png'
-    png = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_saifu_report\debug\A3033_F.AA-A.png'
-    seque = png.split('.')[-2]
-    ref = seque.split('-')[-1]
-    primary = seque.split('-')[0][0]
-    secondary = seque.split('-')[0][-1]
-    header_png = '_'.join(png.split('_')[:-1])+'.header.png'
-    img = img_open(png)
-    img1 = img.copy()
-    print(ref,primary)
-    line = img1[13, :, :]
-    line = np.sum(line,axis=1)
-    line_index = np.argwhere(line != 255*3).reshape([np.argwhere(line != 255*3).shape[0]])
-    count = 0
-    shadow_idx = []
-    for idx, i in enumerate(line_index):
-        if idx > 0:
-            gap = i - line_index[idx - 1]
-            if gap > 10:
-                count += 1
-                if count == 11:
-                    break
-                else:
-                    shadow_idx = []
-            else:
-                shadow_idx.append(i)
-    print(line_index)
-
-    img1_r = img1[:,shadow_idx[0]-20:shadow_idx[0]+30,:]
-
-    img1_1 = np.sum(img1_r, axis=2)
-    idx = np.argwhere(img1_1 == 255*3)
-    img1_r[idx[:,0], idx[:,1], :] = [230, 230, 230]
-
-    img2 = img1[0:int(240/300*360),72:1160,:]
-    img2[img2[:, :, 0:2] == [0,0,255]] = [0, 0, 200]
-
-    img2[(img2[:, :, 0] < 255)*(img2[:, :, 1] < 255)*(img2[:, :, 2] == 255)] = [0,0,250]
-    img2[(img2[:, :, 0] < 255) * (img2[:, :, 1] == 255) * (img2[:, :, 2] < 255)] = [0, 200, 0]
-    img2[(img2[:, :, 0] == 255) * (img2[:, :, 1] < 255) * (img2[:, :, 2] < 255)] = [230, 0, 0]
-    if ref == primary and not os.path.exists(header_png):
-        header = img2[0:30, :, :]
-        header = Image.fromarray(np.uint8(header))
-        header.save(header_png)
-    elif ref == secondary:
-        header = img2[30:60, :, :]
-        header = Image.fromarray(np.uint8(header))
-        header.save(header_png)
-    if secondary != primary:
-        img2[30:60, :shadow_idx[0]-20-72, :] = [255, 255, 255]
-        img2[30:60, shadow_idx[0]+30-72:, :] = [255, 255, 255]
-    else:
-        img2[30:60, :, :] = [255, 255, 255]
-        img2[30:60,shadow_idx[0]-20-72:shadow_idx[0]+30-72:,:] = [230,230,230]
-    _, figs = plt.subplots(2, 1, figsize=(10, 8))
-    figs[0].imshow(img)
-    figs[1].imshow(img2)
-    plt.show()
 
 
 def trans(seq, transform=True,reverse=False):
@@ -207,18 +145,3 @@ def png_reshape_batch(dir):
         if i.endswith('.png'):
             png_reshape(os.path.join(dir,i))
             #os.remove(os.path.join(dir,i))
-
-
-def report():
-    pass
-
-#png = 'D:\\zcs-genex\\201811\\181122\\ABI_improve\\ttt.png'
-#png_reshape(png)
-
-
-if __name__ == '__main__':
-
-    abi_dir = r'G:\9-5-赛福\新建文件夹'
-    dir = abifile_parse(abi_dir)
-    png_reshape_batch(dir)
-    #debug()
