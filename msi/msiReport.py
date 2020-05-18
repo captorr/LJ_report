@@ -4,7 +4,7 @@ python3 script
 娟姐MSI报告用
 """
 
-import os,sys
+import os,sys,time
 import docx
 import pandas
 import openpyxl
@@ -22,7 +22,7 @@ def txtConfigParse(txtInput):
             if not i.strip() or i.startswith('Sample File'):
                 continue
             line = i.strip().split('\t')
-            sampleName = line[1]
+            sampleName = line[1].replace('_','-')
             panel = line[2]
             marker = line[3].replace('-','').lower()
             size1 = line[7]
@@ -43,6 +43,8 @@ def xlsConfigParse(xlsInput):
         if row[0].value in ['患者名称']:
             continue
         Pname = row[0].value if row[0].value else Pname
+        if not row[2].value:
+            continue
         Nid = row[2].value.replace('_','-')
         Tid = row[3].value.replace('_','-')
         if Pname in res:
@@ -54,7 +56,7 @@ def xlsConfigParse(xlsInput):
 
 
 def figConfigMake(pngDir):
-    return {i.strip('.png').split('_')[-1]: os.path.join(pngDir,i) for i in os.listdir(pngDir) if i.endswith('.png')}
+    return {i.strip('.png'): os.path.join(pngDir,i) for i in os.listdir(pngDir) if i.endswith('.png')}
 
 
 class markerCheck:
@@ -111,6 +113,7 @@ def report(txtConfig,xlsConfig,figConfig,templet,outputDir):
         os.makedirs(outputDir)
     log = os.path.join(outputDir,'log.txt')
     o = open(log,'w')
+    o.write('生成日期：{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),))
     for name in xlsConfig:
         ## todo:table[0]替换name
         print('正在处理:{}...'.format(name))
@@ -163,6 +166,7 @@ def report(txtConfig,xlsConfig,figConfig,templet,outputDir):
         D.save(reportName)
     o.close()
 
+
 def word_table_cell_insert_pic(table, cell, pic):
     run = table.cell(cell[0], cell[1]).paragraphs[0].add_run()
     run.add_picture(pic, width=Cm(8.5), height=Cm(3.33))
@@ -178,12 +182,26 @@ def wordTest():
     print(D.tables[2].cell(1,0).paragraphs[0].text)
 
 
+def test(debug=1):
+    outputDir = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf'
+    templet = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\MSI报告模板V20200515.docx'
+    xls = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\人名对应信息.xlsx'
+    txt = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\数据导出.txt'
+    pdfDir = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\test\pngs'
+    if not debug:
+        pdfRead.run(pdfDir)
+    xlsConfig = xlsConfigParse(xls)
+    txtConfig = txtConfigParse(txt)
+    figConfig = figConfigMake(pdfDir)
+    report(txtConfig, xlsConfig, figConfig, templet,outputDir)
+
+
 def run(baseDir,debug=''):
     templet = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\MSI报告模板V20200515.docx'
     pngDir = os.path.join(baseDir,'pngs')
     reportDir = os.path.join(baseDir,'reports')
-    txt = [i for i in os.listdir(baseDir) if i.endswith('.txt') or i.endswith('.TXT')]
-    xls = [i for i in os.listdir(baseDir) if i.endswith('.xls') or i.endswith('.xlsx') or i.endswith('.XLSX') or i.endswith('.XLS')]
+    txt = [os.path.join(baseDir,i) for i in os.listdir(baseDir) if i.endswith('.txt') or i.endswith('.TXT')]
+    xls = [os.path.join(baseDir,i) for i in os.listdir(baseDir) if i.endswith('.xls') or i.endswith('.xlsx') or i.endswith('.XLSX') or i.endswith('.XLS')]
     if len(txt) != 1:
         print('存在未知 txt 文件！')
         exit(10000)
@@ -220,7 +238,7 @@ def main():
             break
     debug = input("DEBUG模式:\n")
     run(baseDir,debug=debug)
-    input('运行结束，回车退出')
+    input('\n运行结束，回车退出')
 
 
 if __name__ == '__main__':

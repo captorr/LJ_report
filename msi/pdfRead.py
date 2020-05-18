@@ -4,7 +4,7 @@ python3 script
 从PDF中提取图片
 """
 
-import os,sys
+import os,sys,re
 from pdfminer.pdfparser import PDFParser,PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import PDFPageAggregator
@@ -35,8 +35,10 @@ def parse(pdf_file,pngDir):
         drawDict = {}
         for x in layout:
             if (isinstance(x, LTTextBoxHorizontal)):
-                if '.fsa' in x.get_text():
-                    name = x.get_text().strip().strip('.fsa')
+                if '.fsa' in x.get_text() or '.FSA' in x.get_text():
+                    name = re.findall('_([FHTfht]_.*_[TNtn])\.[FSAfsa]*', x.get_text())
+                    name = name[0].replace('_','-')
+                    #name = x.get_text().strip().strip('.fsa')
                     drawDict[name] = list(x.bbox)
         for idx,name in enumerate(sorted(drawDict,key=lambda x:drawDict[x][1])):
             heightMulti = 19.22
@@ -69,7 +71,7 @@ def pdf2png(pdf,zoom,page,pic_path):
     d = doc[page]
     trans = fitz.Matrix(zoom, zoom).preRotate(rotate)
     pm = d.getPixmap(matrix=trans, alpha=False)
-    path = os.path.join(pic_path, '{}_{}.png'.format(pdf.lower().strip('.pdf'),page+1))
+    path = os.path.join(pic_path, '{}_{}.png'.format(os.path.basename(pdf).lower().strip('.pdf'),page+1))
     pm.writePNG(path)
     return path
 
@@ -84,6 +86,12 @@ def locPNG(png,position,zoom,cropped_path):
 def run(basedir,pngDir):
     if not os.path.exists(pngDir):
         os.makedirs(pngDir)
-    pdfs = [i for i in os.listdir(basedir) if i.endswith('pdf') or i.endswith('PDF')]
+    pdfs = [os.path.join(basedir,i) for i in os.listdir(basedir) if i.endswith('pdf') or i.endswith('PDF')]
     for pdf in pdfs:
         parse(pdf,pngDir)
+
+
+if __name__ == '__main__':
+    basedir = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\test'
+    pngDir = r'D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_pdf\test\pngs'
+    run(basedir,pngDir)
