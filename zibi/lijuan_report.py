@@ -51,7 +51,7 @@ def config_parsing(config,pic_dir):
     pic_dict = {}
     for i in config_dict:
         pic_dict[i] = []
-        for k in range(9):
+        for k in range(10):
             for file in os.listdir(pic_dir):
                 if "%s-%s" %(str(i),str(k+1)) in file or "%s_%s" %(str(i),str(k+1)) in file:
                     if file.endswith('.0'):
@@ -77,6 +77,7 @@ def word_work(model,out,context,pics):
                  7:["--","--"],
                  8:["无","Thr92Ala"],
                  9:["--","--"],
+                 10:["无","Tyr233="]
                  }
     key = False
     d = docx.Document(model)
@@ -162,7 +163,7 @@ def word2pdf(docx_file,pdf_file):
 def main(config,pic_dir,out_dir):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
-    base_model = "D:\\zcs-genex\SCRIPTS\\Scripts_for_work\\lijuan_report_improve\\20190108\\基因位点筛查报告模版190108.docx"
+    base_model = r"替换"
     cfg, pic_dict = config_parsing(config,pic_dir)
     for i in cfg:
         sys.stdout.write("生成{}报告...编号：{}...\n".format(cfg[i][1],i))
@@ -216,15 +217,10 @@ if __name__ == '__main__':
         else:
             dir1 = os.path.join(pic_dir,'pngs')
         main(config, dir1, out)
-
-        #main(config, pic_dir, out)
     except Exception as e:
         print(e)
         sys.stdout.write('\n')
     sys.stdout.write('\n')
     input("运行结束，回车退出\n")
 
-#D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_report_improve\test_hg38\样本信息.txt
-#D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_report_improve\test_hg38
-#D:\zcs-genex\SCRIPTS\Scripts_for_work\lijuan_report_improve\test_hg38\report
 

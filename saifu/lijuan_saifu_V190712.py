@@ -30,11 +30,11 @@ def config_read(config,png_dir):
 
             # add png_dict
             pcr = line[5]
-            suffixs = id.split('/')[1:]
-            suffix = [id.split('/')[0][-1]]
-            prefix = id.split('/')[0][:-1]
-            for j in suffixs:
-                suffix.append(j)
+            name_base = id.split('/')
+            prefix = name_base[0][:-2] if name_base[0][-1].isdigit() else name_base[0][:-1]
+            suffix = []
+            for i in id.lstrip(prefix).split('/'):
+                suffix.append(i)
             #names = [prefix+i for i in suffix]
             pngs = [pcr+'_'+i for i in suffix]
             for j in header_list:
@@ -82,10 +82,9 @@ class word_make:
     def _get_names(self):
         name = self.info[0][0]
         name_base = name.split('/')
-        name_prefix = name_base[0][:-1]
-        name_suffix = name_base[1:]
-        suffix = [name_base[0][-1]]
-        for i in name_suffix:
+        name_prefix = name_base[0][:-2] if name_base[0][-1].isdigit() else name_base[0][:-1]
+        suffix = []
+        for i in name.lstrip(name_prefix).split('/'):
             suffix.append(i)
         names = [name_prefix + i for i in suffix]
         date = self.info[0][1].replace('/','-')
@@ -137,12 +136,15 @@ class word_make:
                     ref = genotypes.split('-')[-1]
                     seq = genotypes.split('-')[0]
                     if seq[0] == seq[1]:
-                        text = '纯合{}/{}'.format(seq[0],seq[0])
+                        if seq[0] != ref:
+                            text = '纯合突变{}/{}'.format(seq[0],seq[0])
+                        else:
+                            text = '野生型{}/{}'.format(seq[0], seq[0])
                     else:
                         if seq[0] != ref:
-                            text = '杂合{}/{}'.format(seq[0],seq[1])
+                            text = '杂合突变{}/{}'.format(seq[0],seq[1])
                         else:
-                            text = '杂合{}/{}'.format(seq[1],seq[0])
+                            text = '杂合突变{}/{}'.format(seq[1],seq[0])
                     table2.rows[idx+1].cells[3].text = text
                     ##self.shutil_copy(self.pngs[png], self.outdir)
                     self.shutil_copy(self.abi[png], self.outdir)
@@ -250,6 +252,7 @@ if __name__ == '__main__':
             abi_new.png_reshape_batch(png_dir)
         else:
             png_dir = os.path.join(abi_dir,'pngs')
+        main(config, png_dir, out)
 
     sys.stdout.write('\n')
     input("运行结束，回车退出。\n")
