@@ -3,8 +3,8 @@ python3 script
 Author: Zhang Chengsheng, @2018.11.12
 Usage: 
 
-script for Lijuan to solve report making problem.
-need seq_resolve 
+2020.08.31
+update to 18 sites
 """
 
 import os,sys,docx,time
@@ -34,6 +34,7 @@ def word_table_cell_insert_pic(table,cell,pic):
 
 def config_parsing(config,pic_dir):
     config_dict = {}
+    point_num = 18
     with open(config,'r') as f:
         for i in f.readlines():
             if i.startswith("#") or i == '\n':
@@ -51,7 +52,7 @@ def config_parsing(config,pic_dir):
     pic_dict = {}
     for i in config_dict:
         pic_dict[i] = []
-        for k in range(10):
+        for k in range(point_num):
             for file in os.listdir(pic_dir):
                 if "%s-%s" %(str(i),str(k+1)) in file or "%s_%s" %(str(i),str(k+1)) in file:
                     if file.endswith('.0'):
@@ -70,14 +71,22 @@ def config_parsing(config,pic_dir):
 def word_work(model,out,context,pics):
     site_dict = {1:["无","Val158Met"],
                  2:["无","Arg297="],
-                 3:["无","Ala222Val"],
-                 4:["无","Glu429Ala"],
-                 5:["无","Asp919Gly"],
-                 6:["无","Ile22Met"],
-                 7:["--","--"],
-                 8:["无","Thr92Ala"],
+                 3:["--","--"],
+                 4:["无","Ala222Val"],
+                 5:["无","Pro80="],
+                 6:["无","Asp919Gly"],
+                 7:["无","Ile22Met"],
+                 8:["--","--"],
                  9:["--","--"],
-                 10:["无","Tyr233="]
+                 10:["--","--"],
+                 11:["--","--"],
+                 12:["无","Tyr233="],
+                 13:["无","Ala360="],
+                 14:["无","Ser427="],
+                 15:["无","Leu435Phe"],
+                 16:["无","Asp298Glu"],
+                 17:["--","--"],
+                 18: ["无", "Thr92Ala"],
                  }
     key = False
     d = docx.Document(model)
@@ -163,7 +172,7 @@ def word2pdf(docx_file,pdf_file):
 def main(config,pic_dir,out_dir):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
-    base_model = r"替换"
+    base_model = r"模板路径"
     cfg, pic_dict = config_parsing(config,pic_dir)
     for i in cfg:
         sys.stdout.write("生成{}报告...编号：{}...\n".format(cfg[i][1],i))
@@ -176,6 +185,7 @@ def main(config,pic_dir,out_dir):
                 sys.stdout.write("WARNING: docx转pdf发生错误！错误文件:{}\n".format(out_file))
         else:
             sys.stdout.write("WARNING:{}没有生成PDF文件，编号{}，{}\n".format(cfg[i][1],i,key))
+
 
 def welcome():
     sys.stdout.write('======================================\n')
