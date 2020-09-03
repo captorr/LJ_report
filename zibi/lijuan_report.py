@@ -106,8 +106,8 @@ def word_work(model,out,context,pics):
         else:
             word_table_cell_insert_pic(table4, ((idx//2)+2, 2*(idx%2)+1), i)
             #genotype, res, type, miss_count = seq_resolve.base_identity(i,refseq_dict[idx+1][0],refseq_dict[idx+1][1])
-            genotype = os.path.basename(i).split('.')[1].split('-')[0]
-            res = os.path.basename(i).split('.')[1].split('-')[1]
+            genotype = os.path.basename(i).split('.')[1].split('-')[0].upper()
+            res = os.path.basename(i).split('.')[1].split('-')[1].upper()
             ###
             if genotype[0] == genotype[1]:
                 if genotype[0] == res:
